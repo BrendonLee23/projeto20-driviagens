@@ -1,15 +1,15 @@
 import { Router } from "express";
-import clientsRouter from "./clients.routes.js";
-import cakesRouter from "./cakes.routes.js";
-import ordersRouter from "./orders.routes.js";
-import flavoursRouter from "./flavours.routes.js";
+import citiesRouter from "./cities.routes";
+import flightsRouter from "./flights.routes";
+import travelsRouter from "./travels.routes";
+import passengersRouter from "./passengers.routes";
 
 
 const router = Router()
 
-router.use(flavoursRouter)
-router.use(cakesRouter)
-router.use(clientsRouter)
-router.use(ordersRouter)
+router.use(citiesRouter)
+router.use(flightsRouter)
+router.use(travelsRouter)
+router.use(passengersRouter)
 
 export default router;
