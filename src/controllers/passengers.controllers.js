@@ -1,18 +1,17 @@
-import passengersService from "../services/passengersService";
+import httpStatus from "http-status";
+import passengersService from "../services/passengersService.js";
 
 
 export async function postPassengers(req, res) {
     const { firstName, lastName } = req.body;
 
-    try {
-
-        const passenger = await passengersService.createPassengers(firstName, lastName)
-        res.send(passenger);
-        
-        /* res.sendStatus(201); */
-    } catch (err) {
-        res.status(500).send(err.message);
+        try {
+            await passengersService.insertPassenger(firstName, lastName)
+            res.sendStatus(201);
+        } catch (error) {
+            console.log(error);
+            res.status(500).send(error.message);
+        }
     }
-}
 
 
