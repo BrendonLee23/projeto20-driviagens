@@ -9,6 +9,7 @@ async function insertTravels(passengerId, flightId) {
             res.status(404).json({ error: 'IDs de passageiro e/ou voo não encontrados.' });
             return;
         }
+        await travelsRepository.insertTravel(passengerId, flightId)
 }
 
 const travelsService = {

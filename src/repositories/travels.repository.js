@@ -8,11 +8,15 @@ async function verifyFlightExistence(flightId) {
 	const flight = await  db.query(`SELECT * FROM travels WHERE name=$1`, [flightId])
     return flight;
 }
+async function insertTravel (passengerId, flightId) {
+	await db.query(`INSERT INTO travels ("passengerId", "flightId") VALUES ($1, $2)`, [passengerId, flightId]);
+}
 
 const travelsRepository = {
 
     verifyFlightExistence,
-    verifyPassengerExistence
+    verifyPassengerExistence,
+    insertTravel
 
 };
 
