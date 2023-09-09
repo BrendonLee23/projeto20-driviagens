@@ -1,9 +1,9 @@
 import joi from "joi";
 
-const flightSchema = joi.object({
-    origin: joi.number().integer().min(1).required(),
-    destination: joi.number().integer().min(1).required(),
-    date: joi.date().iso().required(),
+export const flightSchema = joi.object({
+    origin: joi.number().integer().positive().required(),
+    destination: joi.number().integer().positive().required(),
+    date: joi.string().pattern(/^\d{2}-\d{2}-\d{4}$/).required(),
 });
 
-export default flightSchema;
+
