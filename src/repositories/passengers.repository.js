@@ -15,11 +15,11 @@ async function findPassengersWithTravels (name, params, maxResults) {
         let query = `
         SELECT
             CONCAT(passengers."firstName", ' ', passengers."lastName") AS passenger,
-            COUNT(travels.id) AS travels
+            COUNT(travels."passengerId") AS travels
         FROM
-            passengers
+            travels
         LEFT JOIN
-            travels ON passengers.id = travels."passengerId"
+            passengers ON passengers.id = travels."passengerId"
     `;    
         if (name) {
             query += ' WHERE CONCAT(passengers."firstName", \' \', passengers."lastName") ILIKE $1';
@@ -29,16 +29,17 @@ async function findPassengersWithTravels (name, params, maxResults) {
         query += `
             GROUP BY passengers.id, passengers."firstName", passengers."lastName"
             ORDER BY travels DESC
+            LIMIT 11
         `;
 
         // Limite de resultados
-        if (name) {
+/*         if (name) {
             query += ' LIMIT $2';
             params.push(maxResults);
         } else {
             query += ' LIMIT $1';
             params.push(maxResults);
-        }
+        } */
 
         const result = await db.query(query, params);
         return result
