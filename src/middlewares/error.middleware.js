@@ -18,5 +18,5 @@ export default function errorHandler(error, req, res, next) {
     if (error.type === 'internalServerError'){
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).send(error.message);
     }
-    return res.status(httpStatus.INTERNAL_SERVER_ERROR).send("Sorry, something went wrong.")
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).send("Sorry, something went wrong.")
 }
