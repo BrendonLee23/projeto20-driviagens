@@ -1,5 +1,10 @@
 import { db } from "../database/database.connection.js";
 
+async function verifyPassengerExistence(passengerId) {
+    const passenger = await db.query(`SELECT * FROM passengers WHERE id=$1`, [passengerId]);
+    return passenger;
+}
+
 async function insertPassenger (firstName, lastName) {
 	await db.query(`INSERT INTO passengers ("firstName", "lastName") VALUES ($1, $2)`, [firstName, lastName]);
 }
@@ -41,6 +46,7 @@ async function findPassengersWithTravels (name, params, maxResults) {
 
 const passengersRepository = {
 
+    verifyPassengerExistence,
     insertPassenger,
     findPassengersWithTravels
 

@@ -5,7 +5,7 @@ export async function postCities(name) {
 
         const cityExists = await citiesRepository.verifyCity(name);
         // Verifique se a cidade já existe na tabela de cidades
-        if (cityExists.rowCount > 0) throw conflictError()
+        if (cityExists.rowCount > 0) throw conflictError("Não é permitido adicionar cidades com nomes repetidos")
         // Adicione a cidade ao array
         await citiesRepository.insertCity(name);
 }

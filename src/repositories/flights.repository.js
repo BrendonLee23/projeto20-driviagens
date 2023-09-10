@@ -5,6 +5,10 @@ import { db } from "../database/database.connection.js";
 async function insertFlight(origin, destination, flightDate) {
 	await db.query(`INSERT INTO flights (origin, destination, date) VALUES ($1, $2, $3)`, [origin, destination, flightDate]);
 }
+async function verifyFlightExistence(flightId) {
+    const flight = await db.query(`SELECT * FROM flights WHERE id=$1`, [flightId]);
+    return flight;
+}
 async function getFlightsByOrigin(origin, params) {
     let query = `
         SELECT
@@ -70,16 +74,8 @@ async function getFlightsByDateRange(smallerDate, biggerDate, params) {
         INNER JOIN
             cities AS cities_destination ON flights.destination = cities_destination.id
     `;
-
-    if (smallerDate && biggerDate) {
-        if (smallerDate > biggerDate) {
-            throw new Error('A data menor não pode ser maior do que a data maior.');
-        }
-        query += ' WHERE flights.date >= $1 AND flights.date <= $2';
-        params.push(smallerDate, biggerDate);
-    } else {
-        throw new Error('Ambas as datas devem ser fornecidas juntas.');
-    }
+    query += ' WHERE flights.date >= $1 AND flights.date <= $2';
+    params.push(smallerDate, biggerDate);
 
     // Adiciona a cláusula SQL para ordenar os resultados por datas, da mais próxima para a mais distante
     query += ' ORDER BY flights.date';
@@ -93,6 +89,7 @@ async function getFlightsByDateRange(smallerDate, biggerDate, params) {
 const flightsRepository = {
 
     insertFlight,
+    verifyFlightExistence,
     getFlightsByOrigin,
     getFlightsByDestination,
     getFlightsByDateRange

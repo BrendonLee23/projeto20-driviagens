@@ -15,7 +15,7 @@ export async function postPassengers(req, res) {
     }
 
 
-export async function getPassengersWithTravels(req, res) {
+export async function getPassengersWithTravels(req, res, next) {
 
     const { name } = req.query;
     const params = [];
@@ -31,6 +31,6 @@ export async function getPassengersWithTravels(req, res) {
     
             res.send(passengersWithTravels);
         } catch (error) {
-            res.status(500).send(error.message);
+            next(error);
         }
 }
