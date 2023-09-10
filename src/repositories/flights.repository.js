@@ -1,24 +1,101 @@
 import { db } from "../database/database.connection.js";
 
 
-async function verifyOriginCity(origin) {
-	const city = await db.query(`SELECT * FROM cities WHERE name=$1`, [origin])
-    return city;
-}
-async function verifyDestinationCity(destination) {
-	const destiny = await  db.query(`SELECT * FROM cities WHERE name=$1`, [destination])
-    return destiny
-}
+
 async function insertFlight(origin, destination, flightDate) {
 	await db.query(`INSERT INTO flights (origin, destination, date) VALUES ($1, $2, $3)`, [origin, destination, flightDate]);
 }
+async function getFlightsByOrigin(origin, params) {
+    let query = `
+        SELECT
+            flights.id,
+            cities_origin.name AS origin,
+            cities_destination.name AS destination,
+            TO_CHAR(flights.date, 'DD-MM-YYYY') AS date
+        FROM
+            flights
+        INNER JOIN
+            cities AS cities_origin ON flights.origin = cities_origin.id
+        INNER JOIN
+            cities AS cities_destination ON flights.destination = cities_destination.id
+    `;
+
+    if (origin) {
+        query += ' WHERE cities_origin.name = $1';
+        params.push(origin);
+    }
+    // Adiciona a cláusula SQL para ordenar os resultados por datas, da mais próxima para a mais distante
+    query += ' ORDER BY flights.date';
+
+    const result = await db.query(query, params);
+    return result;
+}
+async function getFlightsByDestination(destination, params) {
+    let query = `
+        SELECT
+            flights.id,
+            cities_origin.name AS origin,
+            cities_destination.name AS destination,
+            TO_CHAR(flights.date, 'DD-MM-YYYY') AS date
+        FROM
+            flights
+        INNER JOIN
+            cities AS cities_origin ON flights.origin = cities_origin.id
+        INNER JOIN
+            cities AS cities_destination ON flights.destination = cities_destination.id
+    `;
+
+    if (destination) {
+        query += params.length ? ' AND' : ' WHERE';
+        query += ' cities_destination.name = $' + (params.length + 1);
+        params.push(destination);
+    }
+    // Adiciona a cláusula SQL para ordenar os resultados por datas, da mais próxima para a mais distante
+    query += ' ORDER BY flights.date';
+
+    const result = await db.query(query, params);
+    return result;
+}
+async function getFlightsByDateRange(smallerDate, biggerDate, params) {
+    let query = `
+        SELECT
+            flights.id,
+            cities_origin.name AS origin,
+            cities_destination.name AS destination,
+            TO_CHAR(flights.date, 'DD-MM-YYYY') AS date
+        FROM
+            flights
+        INNER JOIN
+            cities AS cities_origin ON flights.origin = cities_origin.id
+        INNER JOIN
+            cities AS cities_destination ON flights.destination = cities_destination.id
+    `;
+
+    if (smallerDate && biggerDate) {
+        if (smallerDate > biggerDate) {
+            throw new Error('A data menor não pode ser maior do que a data maior.');
+        }
+        query += ' WHERE flights.date >= $1 AND flights.date <= $2';
+        params.push(smallerDate, biggerDate);
+    } else {
+        throw new Error('Ambas as datas devem ser fornecidas juntas.');
+    }
+
+    // Adiciona a cláusula SQL para ordenar os resultados por datas, da mais próxima para a mais distante
+    query += ' ORDER BY flights.date';
+
+    const result = await db.query(query, params);
+    return result;
+}
+
 
 
 const flightsRepository = {
 
-    verifyDestinationCity,
-    verifyOriginCity,
-    insertFlight
+    insertFlight,
+    getFlightsByOrigin,
+    getFlightsByDestination,
+    getFlightsByDateRange
 
 };
 
