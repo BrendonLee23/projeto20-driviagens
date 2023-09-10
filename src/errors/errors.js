@@ -1,6 +1,6 @@
-export function badRequestError(resourse){
+export function conflictError(){
     return{
-        type: "badRequest",
-        message: `Todos os ${resourse} são obrigatórios`
+        type: "conflict",
+        message: `Não é permtido adicinar cidades com nomes repetidos`
     }
 }
