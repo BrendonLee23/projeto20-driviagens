@@ -4,7 +4,7 @@ import flightsServices from "../services/flightsService.js";
 
 
 export async function postFlights(req, res) {
-    const { origin, destination, date } = req.body;
+        const { origin, destination, date } = req.body;
 
         await flightsServices.postFlights(origin, destination, date)
         res.sendStatus(httpStatus.CREATED);

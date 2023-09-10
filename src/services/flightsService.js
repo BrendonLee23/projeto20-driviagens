@@ -1,15 +1,18 @@
-import { badRequestError, conflictError, unprocessableEntityError } from "../errors/errors";
-import citiesRepository from "../repositories/cities.repository";
-import flightsRepository from "../repositories/flights.repository";
+import { badRequestError, conflictError, notFoundError, unprocessableEntityError } from "../errors/errors.js";
+import citiesRepository from "../repositories/cities.repository.js";
+import flightsRepository from "../repositories/flights.repository.js";
 
 async function postFlights(origin, destination, date) {
 
         // Verificando se as cidades de origem e destino existem na lista de cidades
+
+        if (origin === destination) throw conflictError("Origem e destino devem ser diferentes")
+
         const existOrigin = await citiesRepository.verifyOriginCity(origin);
         const existDestination = await citiesRepository.verifyDestinationCity(destination);
-
-        if (!existOrigin || !existDestination) throw notFoundError("A cidades de origem e destino não foram encontradas") 
-        if (origin === destination) throw conflictError("Origem e destino devem ser diferentes")
+        console.log(existOrigin)
+        console.log(existDestination)
+        if (existOrigin.rowCount === 0 || existDestination.rowCount === 0) throw notFoundError("A cidades de origem e destino não foram encontradas")
 
         // Converta a data para um objeto Date
         const dateParts = date.split('-');

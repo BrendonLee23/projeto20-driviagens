@@ -9,11 +9,12 @@ async function insertCity (name) {
 	return db.query(`INSERT INTO cities (name) VALUES ($1)`, [name]);
 }
 async function verifyOriginCity(origin) {
-	const city = await db.query(`SELECT * FROM cities WHERE name=$1`, [origin])
+	const city = await db.query(`SELECT * FROM cities WHERE id=$1`, [origin])
+
     return city;
 }
 async function verifyDestinationCity(destination) {
-	const destiny = await db.query(`SELECT * FROM cities WHERE name=$1`, [destination])
+	const destiny = await db.query(`SELECT * FROM cities WHERE id=$1`, [destination])
     return destiny
 }
 const citiesRepository = {

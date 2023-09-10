@@ -1,5 +1,5 @@
 import httpStatus from "http-status";
-import travelsService from "../services/travelsService";
+import travelsService from "../services/travelsService.js";
 
 export async function postTravels(req, res) {
     const { passengerId, flightId } = req.body;
