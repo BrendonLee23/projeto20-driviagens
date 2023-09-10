@@ -9,6 +9,31 @@ async function verifyFlightExistence(flightId) {
     const flight = await db.query(`SELECT * FROM flights WHERE id=$1`, [flightId]);
     return flight;
 }
+async function getAllInfos(origin, destination, biggerDate, smallerDate) {
+    let query = `
+        SELECT
+            flights.id,
+            cities_origin.name AS origin,
+            cities_destination.name AS destination,
+            TO_CHAR(flights.date, 'DD-MM-YYYY') AS date
+        FROM
+            flights
+        INNER JOIN
+            cities AS cities_origin ON flights.origin = cities_origin.id
+        INNER JOIN
+            cities AS cities_destination ON flights.destination = cities_destination.id
+    `;
+
+    if (origin) {
+        query += ' WHERE cities_origin.name = $1';
+        params.push(origin);
+    }
+    // Adiciona a cláusula SQL para ordenar os resultados por datas, da mais próxima para a mais distante
+    query += ' ORDER BY flights.date';
+
+    const result = await db.query(query, params);
+    return result;
+}
 async function getFlightsByOrigin(origin, params) {
     let query = `
         SELECT

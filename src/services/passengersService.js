@@ -12,8 +12,11 @@ async function getPassengersWithTravels(name, params) {
             if (name && name.length > maxResults) throw internalServerError("Limite de resultados ultrapassado.")
 
             const result = await passengersRepository.findPassengersWithTravels(name, params, maxResults);
-    
-            return (result);
+            const passengersWithTravels = result.rows.map(row => ({
+                passenger: row.passenger,
+                travels: row.travels,
+            }));
+            return (passengersWithTravels);
 }
 
 

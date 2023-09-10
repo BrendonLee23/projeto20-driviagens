@@ -19,7 +19,7 @@ async function postFlights(origin, destination, date) {
         const flightDate = new Date(year, month, day);
         // Verificando se a data do voo é maior do que a data atual
         const currentDate = new Date();
-        if (flightDate <= currentDate) throw unprocessableEntityErrr("A data do voo deve ser maior do que a data atual")
+        if (flightDate <= currentDate) throw unprocessableEntityError("A data do voo deve ser maior do que a data atual")
         await flightsRepository.insertFlight( origin, destination, flightDate)
 }
 
