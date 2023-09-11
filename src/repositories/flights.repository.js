@@ -9,7 +9,7 @@ async function verifyFlightExistence(flightId) {
     const flight = await db.query(`SELECT * FROM flights WHERE id=$1`, [flightId]);
     return flight;
 }
-async function getAllInfos(origin, destination, biggerDate, smallerDate) {
+async function getAllInfos() {
     let query = `
         SELECT
             flights.id,
@@ -22,16 +22,10 @@ async function getAllInfos(origin, destination, biggerDate, smallerDate) {
             cities AS cities_origin ON flights.origin = cities_origin.id
         INNER JOIN
             cities AS cities_destination ON flights.destination = cities_destination.id
+        ORDER BY flights.date
     `;
 
-    if (origin) {
-        query += ' WHERE cities_origin.name = $1';
-        params.push(origin);
-    }
-    // Adiciona a cláusula SQL para ordenar os resultados por datas, da mais próxima para a mais distante
-    query += ' ORDER BY flights.date';
-
-    const result = await db.query(query, params);
+    const result = await db.query(query);
     return result;
 }
 async function getFlightsByOrigin(origin, params) {
@@ -99,11 +93,12 @@ async function getFlightsByDateRange(smallerDate, biggerDate, params) {
         INNER JOIN
             cities AS cities_destination ON flights.destination = cities_destination.id
     `;
-    query += ' WHERE flights.date >= $1 AND flights.date <= $2';
+    query += ' WHERE flights.date >= $1::date AND flights.date <= $2::date';
     params.push(smallerDate, biggerDate);
 
     // Adiciona a cláusula SQL para ordenar os resultados por datas, da mais próxima para a mais distante
     query += ' ORDER BY flights.date';
+    console.log(query, params);
 
     const result = await db.query(query, params);
     return result;
@@ -113,6 +108,7 @@ async function getFlightsByDateRange(smallerDate, biggerDate, params) {
 
 const flightsRepository = {
 
+    getAllInfos,
     insertFlight,
     verifyFlightExistence,
     getFlightsByOrigin,

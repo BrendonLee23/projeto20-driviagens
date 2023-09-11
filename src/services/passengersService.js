@@ -15,7 +15,7 @@ async function getPassengersWithTravels(name, params) {
             if (result.rowCount > maxResults) throw internalServerError("Limite de resultados ultrapassado.")
             const passengersWithTravels = result.rows.map(row => ({
                 passenger: row.passenger,
-                travels: row.travels,
+                travels: Number(row.travels),
             }));
             return (passengersWithTravels);
 }

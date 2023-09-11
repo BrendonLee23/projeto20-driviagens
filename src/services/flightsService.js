@@ -1,6 +1,7 @@
 import { badRequestError, conflictError, notFoundError, unprocessableEntityError } from "../errors/errors.js";
 import citiesRepository from "../repositories/cities.repository.js";
 import flightsRepository from "../repositories/flights.repository.js";
+import { formatedDate } from "../utils/date.utils.js";
 
 async function postFlights(origin, destination, date) {
 
@@ -14,12 +15,7 @@ async function postFlights(origin, destination, date) {
         console.log(existDestination)
         if (existOrigin.rowCount === 0 || existDestination.rowCount === 0) throw notFoundError("A cidades de origem e destino não foram encontradas")
 
-        // Converta a data para um objeto Date
-        const dateParts = date.split('-');
-        const day = parseInt(dateParts[0], 10);
-        const month = parseInt(dateParts[1], 10) - 1; // Mês começa em 0 (janeiro)
-        const year = parseInt(dateParts[2], 10);
-        const flightDate = new Date(year, month, day);
+        const flightDate = formatedDate(date);
         // Verificando se a data do voo é maior do que a data atual
         const currentDate = new Date();
         if (flightDate <= currentDate) throw unprocessableEntityError("A data do voo deve ser maior do que a data atual")
@@ -28,11 +24,22 @@ async function postFlights(origin, destination, date) {
 
 async function getFlights(origin, destination, biggerDate, smallerDate) {
 
-    const params = [];
-    
-    if ((smallerDate && biggerDate) && smallerDate > biggerDate) throw unprocessableEntityError("bigger-date não pode ser menor que smaller-date.")
+    let newBiggerDate;
+    let newSmallerDate;
 
+    const params = [];
+    console.log(smallerDate, biggerDate)
+    if((smallerDate && !biggerDate) || (!smallerDate && biggerDate)) {
+        throw badRequestError("bigger-date e smaller-date devem ser passadas juntas.");
+    }
+    if(smallerDate && biggerDate) {
+        newSmallerDate = formatedDate(smallerDate)
+        newBiggerDate = formatedDate(biggerDate)
+        if (newSmallerDate > newBiggerDate) throw unprocessableEntityError("bigger-date não pode ser menor que smaller-date.")
+    }
     let flights;
+    
+    flights = await flightsRepository.getAllInfos()
 
     if (origin) {
         flights = await flightsRepository.getFlightsByOrigin(origin, params);
@@ -40,13 +47,12 @@ async function getFlights(origin, destination, biggerDate, smallerDate) {
     else if (destination) {
         flights = await flightsRepository.getFlightsByDestination(destination, params);
     } 
+    
     else if (smallerDate && biggerDate) {
-        flights = await flightsRepository.getFlightsByDateRange(biggerDate, smallerDate, params);
-    } else {
-        throw badRequestError("bigger-date e smaller-date devem ser passadas juntas.");
-    }
+        flights = await flightsRepository.getFlightsByDateRange(newSmallerDate, newBiggerDate, params);
+    } 
 
-    return flights;
+    return (flights.rows);
 }
 
 const flightsServices = {
